@@ -33,8 +33,7 @@ class MyHomePage extends StatefulWidget {
 
 enum OrderBy { asc, desc }
 class _MyHomePageState extends State<MyHomePage> {
-  String? sortBy;
-  OrderBy? orderBy;
+  final sorter = Sorting();
 
   Future<dynamic> fetchData() async {
     try {
@@ -77,30 +76,51 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   OutlinedButton(
                     onPressed: () {
-                      setState(() {
-                        sortBy = 'name';
-                        orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
-                      });
+                      sorter.changeSort('name', () => setState(() {}));
+                      // if(orderBy == OrderBy.desc) {
+                      //   setState(() {
+                      //     sortBy = null;
+                      //     orderBy = null;
+                      //   });
+                      //   return;
+                      // } else {
+                      //   setState(() {
+                      //     sortBy = 'name';
+                      //     orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
+                      //   });
+                      // }
                     },
-                    child: const Text('Name'),
+                    child: Row(
+                      children: [
+                         const Text('Name'),
+                         if(sorter.sortBy == 'name' && sorter.orderBy != null)
+                          sorter.orderBy == OrderBy.asc ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down)
+                      ],
+                    ),
                   ),
                   OutlinedButton(
                     onPressed: () {
-                      setState(() {
-                        sortBy = 'date';
-                        orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
-                      });
+                      sorter.changeSort('date', () => setState(() {}));
                     },
-                    child: const Text('Date'),
+                    child: Row(
+                      children: [
+                         const Text('Date'),
+                         if(sorter.sortBy == 'date' && sorter.orderBy != null)
+                          sorter.orderBy == OrderBy.asc ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down)
+                      ],
+                    ),
                   ),
                   OutlinedButton(
                     onPressed: () {
-                      setState(() {
-                        sortBy = 'type';
-                        orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
-                      });
+                      sorter.changeSort('type', () => setState(() {}));
                     },
-                    child: const Text('Type'),
+                    child: Row(
+                      children: [
+                         const Text('Type'),
+                         if(sorter.sortBy == 'type' && sorter.orderBy != null)
+                          sorter.orderBy == OrderBy.asc ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down)
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -110,8 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final data = snapshot.data as List<dynamic>;
-                  if(sortBy != null) {
-                    data.sort(((a, b) => orderBy == OrderBy.asc ? a[sortBy].compareTo(b[sortBy]) : b[sortBy].compareTo(a[sortBy])));
+                  if(sorter.orderBy != null) {
+                    data.sort(((a, b) => sorter.orderBy == OrderBy.asc ? a[sorter.sortBy].compareTo(b[sorter.sortBy]) : b[sorter.sortBy].compareTo(a[sorter.sortBy])));
                   }
                   return Expanded(
                     child: ListView.builder(
@@ -144,5 +164,29 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+// When I click on a new column, I'd like it to reset to Asc
+// When I click on the same column, after desc reset to no order by
+
+class Sorting {
+  String? sortBy;
+  OrderBy? orderBy;
+  int count = 0;
+
+  void changeSort(String sortBy, Function() callback) {
+    if (this.sortBy != sortBy){
+      this.sortBy = sortBy;
+      orderBy = OrderBy.asc;
+      callback.call();
+    } else if (this.sortBy == sortBy && orderBy == OrderBy.desc) {
+      this.orderBy = null;
+      callback.call();
+    }
+    else {
+      orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
+      callback.call();
+    }
   }
 }
