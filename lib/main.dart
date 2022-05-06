@@ -31,8 +31,11 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+enum OrderBy { asc, desc }
 class _MyHomePageState extends State<MyHomePage> {
   String? sortBy;
+  OrderBy? orderBy;
+
   Future<dynamic> fetchData() async {
     try {
       Uri uri = Uri.parse('http://127.0.0.1:5500/json/table_data.json');
@@ -76,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       setState(() {
                         sortBy = 'name';
+                        orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
                       });
                     },
                     child: const Text('Name'),
@@ -84,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       setState(() {
                         sortBy = 'date';
+                        orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
                       });
                     },
                     child: const Text('Date'),
@@ -92,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       setState(() {
                         sortBy = 'type';
+                        orderBy = orderBy == OrderBy.asc ? OrderBy.desc : OrderBy.asc;
                       });
                     },
                     child: const Text('Type'),
@@ -105,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (snapshot.hasData) {
                   final data = snapshot.data as List<dynamic>;
                   if(sortBy != null) {
-                    data.sort(((a, b) => a[sortBy].compareTo(b[sortBy])));
+                    data.sort(((a, b) => orderBy == OrderBy.asc ? a[sortBy].compareTo(b[sortBy]) : b[sortBy].compareTo(a[sortBy])));
                   }
                   return Expanded(
                     child: ListView.builder(
